@@ -91,7 +91,7 @@ function applyChange(data: Partial<shared.Appearance>) {
     if (data && typeof data.hair === 'number') {
         data = Object.assign(appearanceData, {
             hair: data.hair,
-            hairOverlay: hairOverlay[appearanceData.sex][appearanceData.hair],
+            hairOverlay: hairOverlay[appearanceData.sex][data.hair],
         });
     }
 

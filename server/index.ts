@@ -52,11 +52,14 @@ alt.onClient('crc-create-character-save', async (player: alt.Player, appearance:
 
     const result = await crc.database.update({ _id, appearance }, 'characters');
     if (!result) {
+        delete characterMap[player.id];
         player.kick(`Could not create character at this time, rejoin.`);
         return;
     }
 
+    alt.emit('crc-create-character-finish', player, _id);
     alt.logDebug(`crc-create-character | Updated Character Appearance`);
+    delete characterMap[player.id];
 });
 
 alt.on('playerDisconnect', (player: alt.Player) => {
