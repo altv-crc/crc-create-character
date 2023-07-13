@@ -1,11 +1,12 @@
 import * as alt from 'alt-client';
 import * as native from 'natives';
-import * as ped from './pedPreview';
+import * as shared from 'alt-shared';
 import * as menu from './menus/index';
 import * as presets from './presets';
 import * as appearance from './appearance';
-import { Appearance } from '../shared/interface';
+import * as camera from './camera';
 import { hairOverlay } from './dataSet/hairOverlays';
+import { config } from '../shared/config';
 
 let firstRun = true;
 let interval: number;
@@ -21,8 +22,7 @@ async function openMenu() {
         interval = alt.setInterval(tick, 0);
     }
 
-    await ped.init();
-
+    alt.emit('crc-native-menu', { destroy: true });
     alt.emit('crc-native-menu', {
         create: {
             header: 'Create Character',
@@ -31,7 +31,7 @@ async function openMenu() {
                 {
                     type: 'selection',
                     text: 'Sex',
-                    index: 0,
+                    index: appearance.get().sex,
                     options: [
                         { text: 'Female', value: { sex: 0 } },
                         { text: 'Male', value: { sex: 1 } },
@@ -80,7 +80,7 @@ async function openMenu() {
     applyChange({ sex: 0 });
 }
 
-function applyChange(data: Partial<Appearance>) {
+function applyChange(data: Partial<shared.Appearance>) {
     native.setClockTime(8, 0, 0);
     const appearanceData = appearance.get();
 
@@ -96,7 +96,9 @@ function applyChange(data: Partial<Appearance>) {
     }
 
     appearance.apply(data);
-    ped.update();
+
+    alt.once('crc-preview-character-updated', camera.update);
+    alt.emit('crc-preview-character-update', appearance.get(), config.position.player);
 }
 
 function applyMicroMorph(data: { index: number; value: number }) {
@@ -105,7 +107,9 @@ function applyMicroMorph(data: { index: number; value: number }) {
     const modifiedData = appearance.get();
     modifiedData.microMorphs[data.index] = data.value;
     appearance.apply(modifiedData);
-    ped.update();
+
+    alt.once('crc-preview-character-updated', camera.update);
+    alt.emit('crc-preview-character-update', appearance.get(), config.position.player);
 }
 
 function applyHeadOverlay(data: { id: number; opacity?: number; color1?: number; color2?: number; value?: number }) {
@@ -119,14 +123,10 @@ function applyHeadOverlay(data: { id: number; opacity?: number; color1?: number;
 
     modifiedData.headOverlays[index] = Object.assign(modifiedData.headOverlays[index], data);
     appearance.apply(modifiedData);
-    ped.update();
-}
 
-alt.on('crc-create-character-main-menu', openMenu);
-alt.on('crc-create-character-update-value', applyChange);
-alt.on('crc-create-character-micromorph-update', applyMicroMorph);
-alt.on('crc-create-character-head-overlay-update', applyHeadOverlay);
-alt.onServer('crc-create-character-start', openMenu);
+    alt.once('crc-preview-character-updated', camera.update);
+    alt.emit('crc-preview-character-update', appearance.get(), config.position.player);
+}
 
 alt.on('crc-create-character-open-menu', (value: 'face' | 'hair' | 'headOverlays' | 'microMorphs' | 'done') => {
     if (!menu[value]) {
@@ -146,5 +146,17 @@ alt.on('crc-create-character-done', () => {
     }
 
     const data = appearance.get();
+
+    alt.emit('crc-preview-character-destroy');
     alt.emitServer('crc-create-character-save', data);
+});
+
+alt.on('crc-create-character-main-menu', openMenu);
+alt.on('crc-create-character-update-value', applyChange);
+alt.on('crc-create-character-micromorph-update', applyMicroMorph);
+alt.on('crc-create-character-head-overlay-update', applyHeadOverlay);
+
+alt.onServer('crc-create-character-start', () => {
+    openMenu();
+    alt.once('crc-preview-character-destroyed', camera.destroy);
 });

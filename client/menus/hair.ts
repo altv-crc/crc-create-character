@@ -19,7 +19,6 @@ export function getHairList(sex: number) {
 export async function open() {
     const data = appearance.get();
     alt.emit('crc-native-menu', { destroy: true });
-
     alt.emit('crc-native-menu', {
         create: {
             header: 'Update Hair',

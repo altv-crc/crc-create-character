@@ -1,7 +1,7 @@
 import * as alt from 'alt-server';
+import * as shared from 'alt-shared';
 import * as crc from '@stuyk/cross-resource-cache';
 import { config } from '../shared/config';
-import { Appearance } from '../shared/interface';
 
 // Initialize Database
 crc.database.onReady(() => {});
@@ -9,7 +9,7 @@ crc.database.onReady(() => {});
 interface Character {
     _id?: string;
     name: string;
-    appearance: Appearance;
+    appearance: shared.Appearance;
 }
 
 const characterMap: { [id: string]: string } = {};
@@ -24,7 +24,7 @@ alt.on('crc-select-character-finish-create', (player: alt.Player, character: Cha
     player.emit('crc-create-character-start');
 });
 
-alt.onClient('crc-create-character-save', async (player: alt.Player, appearance: Appearance) => {
+alt.onClient('crc-create-character-save', async (player: alt.Player, appearance: shared.Appearance) => {
     if (!player || !player.valid) {
         return;
     }
@@ -40,13 +40,23 @@ alt.onClient('crc-create-character-save', async (player: alt.Player, appearance:
         return;
     }
 
-    console.log(characterMap[player.id]);
+    player.model = appearance.sex === 0 ? 'mp_f_freemode_01' : 'mp_m_freemode_01';
+    player.spawn(player.pos.x, player.pos.y, player.pos.z, 0);
+
+    // Set DLC hair; if present
+    player.setClothes(2, appearance.hair, 0, 0);
+    const dlcInfo = player.getDlcClothes(2);
+
+    appearance.hairDlc = dlcInfo.dlc;
+    appearance.hair = dlcInfo.drawable;
 
     const result = await crc.database.update({ _id, appearance }, 'characters');
-    console.log(result);
+    if (!result) {
+        player.kick(`Could not create character at this time, rejoin.`);
+        return;
+    }
 
-    console.log(`saved...`);
-    console.log(appearance);
+    alt.logDebug(`crc-create-character | Updated Character Appearance`);
 });
 
 alt.on('playerDisconnect', (player: alt.Player) => {

@@ -39,6 +39,8 @@ export function update(target: number) {
     } else {
         native.pointCamAtPedBone(camera, target, 0x322c, 0, 0, 0, false);
     }
+
+    alt.logDebug(`crc-create-character | Camera Updated`);
 }
 
 export function destroy() {
@@ -48,6 +50,8 @@ export function destroy() {
     native.destroyAllCams(true);
     native.setCamActive(camera, false);
     native.renderScriptCams(false, false, 0, false, false, 0);
+
+    alt.logDebug(`crc-create-character | Camera Destroyed`);
 }
 
 alt.on('disconnect', destroy);
