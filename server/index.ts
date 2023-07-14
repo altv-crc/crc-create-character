@@ -14,12 +14,12 @@ interface Character {
 
 const characterMap: { [id: string]: string } = {};
 
-alt.on('crc-select-character-finish-create', (player: alt.Player, character: Character) => {
-    if (!player || !player.valid || !character) {
+alt.on('crc-select-character-finish-create', (player: alt.Player, _id: string) => {
+    if (!player || !player.valid || !_id) {
         return;
     }
 
-    characterMap[player.id] = character._id;
+    characterMap[player.id] = _id;
     player.pos = config.position.player;
     player.emit('crc-create-character-start');
 });
