@@ -1,6 +1,6 @@
-import * as shared from 'alt-shared';
+import { Appearance } from 'alt-crc';
 
-let appearance: shared.Appearance = {
+let appearance: Appearance = {
     sex: 0,
     faceFather: 0,
     faceMother: 0,
@@ -37,10 +37,10 @@ let appearance: shared.Appearance = {
     hairOverlay: { collection: '', overlay: '' },
 };
 
-export function apply(data: Partial<shared.Appearance>) {
+export function apply(data: Partial<Appearance>) {
     appearance = Object.assign(appearance, data);
 }
 
-export function get(): shared.Appearance {
+export function get(): Appearance {
     return appearance;
 }

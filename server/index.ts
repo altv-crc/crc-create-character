@@ -1,7 +1,7 @@
 import * as alt from 'alt-server';
-import * as shared from 'alt-shared';
 import * as crc from '@stuyk/cross-resource-cache';
 import { config } from '../shared/config';
+import { Appearance } from 'alt-crc';
 
 // Initialize Database
 crc.database.onReady(() => {});
@@ -9,7 +9,7 @@ crc.database.onReady(() => {});
 interface Character {
     _id?: string;
     name: string;
-    appearance: shared.Appearance;
+    appearance: Appearance;
 }
 
 const characterMap: { [id: string]: string } = {};
@@ -24,7 +24,7 @@ alt.on('crc-select-character-finish-create', (player: alt.Player, _id: string) =
     player.emit('crc-create-character-start');
 });
 
-alt.onClient('crc-create-character-save', async (player: alt.Player, appearance: shared.Appearance) => {
+alt.onClient('crc-create-character-save', async (player: alt.Player, appearance: Appearance) => {
     if (!player || !player.valid) {
         return;
     }

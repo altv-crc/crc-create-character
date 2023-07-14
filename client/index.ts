@@ -1,12 +1,12 @@
 import * as alt from 'alt-client';
 import * as native from 'natives';
-import * as shared from 'alt-shared';
 import * as menu from './menus/index';
 import * as presets from './presets';
 import * as appearance from './appearance';
 import * as camera from './camera';
 import { hairOverlay } from './dataSet/hairOverlays';
 import { config } from '../shared/config';
+import { Appearance } from 'alt-crc';
 
 let firstRun = true;
 let interval: number;
@@ -80,7 +80,7 @@ async function openMenu() {
     applyChange({ sex: 0 });
 }
 
-function applyChange(data: Partial<shared.Appearance>) {
+function applyChange(data: Partial<Appearance>) {
     native.setClockTime(8, 0, 0);
     const appearanceData = appearance.get();
 

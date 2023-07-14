@@ -1,4 +1,4 @@
-import { Appearance } from '../shared/interface';
+import { Appearance } from 'alt-crc';
 
 export const femalePreset: Partial<Appearance> = {
     sex: 0,
